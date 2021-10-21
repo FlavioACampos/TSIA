@@ -3,36 +3,63 @@
 # Fecha:        2018-05-31
 # Modificacion: 2021-10-18 / Se realiza limpieza de codigo (previa a refactoring)
 
-# Suma todos los elementos dentro de la matriz difusa
-def fuzzy_matrix_sum(matrix):
+def fuzzy_matrix_sum(fuzzy_matrix):
+	"""Funcion sumatoria de valores de una matriz difusa.
+
+	:fuzzy_matrix: matriz cuyas filas son valores difusos ([n, n, n])
+	:return: regresa la suma de todos los valores difusos de la matriz
+	"""
 	tri_sum = [0, 0, 0]
-	for row in matrix:
-		for triangular in row:
-			tri_sum[0] += triangular[0]
-			tri_sum[1] += triangular[1]
-			tri_sum[2] += triangular[2]
+	for fuzzy_row in fuzzy_matrix:
+		for fuzzy_val in fuzzy_row:
+			tri_sum[0] += fuzzy_val[0]
+			tri_sum[1] += fuzzy_val[1]
+			tri_sum[2] += fuzzy_val[2]
 	return tri_sum
 
-def fuzzy_row_sum(row):
+def fuzzy_row_sum(fuzzy_row):
+	"""Funcion sumatoria de valores de una fila de matriz difusa.
+
+	:fuzzy_row: fila con valores difusos [[n, n, n], ... [n, n, n]]
+	:return: regresa la suma de todos los valores difusos de la fila
+	"""
 	tri_sum = [0, 0, 0]
-	for element in row:
-		tri_sum[0] += element[0]
-		tri_sum[1] += element[1]
-		tri_sum[2] += element[2]
+	for fuzzy_val in fuzzy_row:
+		tri_sum[0] += fuzzy_val[0]
+		tri_sum[1] += fuzzy_val[1]
+		tri_sum[2] += fuzzy_val[2]
 	return tri_sum
 
-def fuzzy_division(triangular_1, triangular_2):
-	tri_2 = list(reversed(triangular_2))
-	weight = [x / y for x, y in zip(triangular_1, tri_2)]
-	return weight
+def fuzzy_division(fuzzy_val_1, fuzzy_val_2):
+	"""Funcion que divide dos numeros difusos.
+	
+	:fuzzy_val_1: valor difuso triangular (dividendo)
+	:fuzzy_val_2: valor difuso triangular (divisor)
+	:return: regresa el resultado de la operacion (valor difuso)
+	"""
+	fuzzy_val_2 = list(reversed(fuzzy_val_2))
+	result = [val_1 / val_2 for val_1, val_2 in zip(fuzzy_val_1, fuzzy_val_2)] # weight
+	return result
 
-def fuzzy_multiplication(triangular_1, triangular_2):
-	aggregated_weight_value = [
-		x * y for x, y in zip(triangular_1, triangular_2)]
-	return aggregated_weight_value
-			
-# Convierte una matriz normal de saaty a una difusa
+def fuzzy_multiplication(fuzzy_val_1, fuzzy_val_2):
+	"""Funcion que multiplica dos numeros difusos.
+	
+	:fuzzy_val_1: valor difuso triangular
+	:fuzzy_val_2: valor difuso triangular
+	:return: regresa el resultado de la operacion (valor difuso)
+	"""
+	result = [val_1 * val_2 for val_1, val_2 in zip(fuzzy_val_1, fuzzy_val_2)] # aggregated_weight_value
+	return result
+
 def normal_to_fuzzy(matrix):
+	"""Funcion que convierte una matriz de saaty de normal a difusa
+
+	La conversion de los valores se realiza conforme a la Tabla 1 del doc
+	
+	:matrix: matriz original de saaty
+	:return: matriz de saaty en su version difusa
+	"""
+	delta = 2 # distancia difusa (puede ser entre 0.5 y 2 para valores impares)
 	fuzzy_matrix = []
 	for row in matrix:
 		new_row = []
@@ -65,13 +92,20 @@ def normal_to_fuzzy(matrix):
 		fuzzy_matrix.append(new_row)
 	return fuzzy_matrix
 
-def fuzzy_to_normal(matrix):
-	new_matrix = []
-	for fuzzy_list in matrix: # tiene 3 listas por ser 3 alternativas
+def fuzzy_to_normal(fuzzy_matrix):
+	"""Funcion que convierte una matriz difusa de saaty a normal
+
+	La conversion de los valores se realiza por el metodo de centro de gravedad
+	
+	:matrix: matriz difusa de saaty
+	:return: matriz de saaty en su version normal
+	"""
+	normal_matrix = []
+	for fuzzy_list in fuzzy_matrix: # tiene 3 listas por ser 3 alternativas
 		new_list = []
-		for element in fuzzy_list:
+		for triangular in fuzzy_list:
 			# Metodo de centro de gravedad
-			new_element = ((element[2] - element[0] + element[1] - element[0]) / 3 + element[0])
+			new_element = ((triangular[2] - triangular[0] + triangular[1] - triangular[0]) / 3 + triangular[0])
 			new_list.append(new_element)
-		new_matrix.append(new_list)
-	return new_matrix
+		normal_matrix.append(new_list)
+	return normal_matrix
